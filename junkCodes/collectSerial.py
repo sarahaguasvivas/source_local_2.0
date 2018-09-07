@@ -2,7 +2,7 @@
 import serial
 import struct
 serial_port = '/dev/ttyUSB0'
-baud_rate = 9600 #In arduino, Serial.begin(baud_rate)
+baud_rate = 9600 
 write_to_file_path = "320deg25.txt"
 
 output_file = open(write_to_file_path, "w+")
