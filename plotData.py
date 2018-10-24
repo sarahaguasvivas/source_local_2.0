@@ -6,12 +6,12 @@ import struct
 #plt.plot(df.iloc[:, 0])
 #plt.plot(df.iloc[:, 1])
 #plt.plot(df.iloc[:, 2])
-
-data= open('testDataTest.txt', 'r')
-data= data.read().replace('\n', '')
-str1= str(len(data)/4) + "f"
-data= str(struct.unpack(str1, data))  
-print(data)
+Data=""
+with open('testDataTest.txt', 'r') as f:
+	data= f.read()
+	str1= str(len(data)/4) + "f"
+	Data= Data+str(struct.unpack(str1, data))  
+data= Data
 list_data= data.split(')(')
 data= {}
 dataData= []
@@ -19,6 +19,7 @@ dataData= []
 for i in range(len(list_data)):
 	list_data[i]= list_data[i].replace('(','' )
 	list_data[i]= list_data[i].replace(')', '')
+	list_data[i]= list_data[i].replace('\n', '')
 	data[i]= list_data[i].split(',')
 	if len(data[i]) > 0:
 		data[i]= [float(j) for j in data[i]]
