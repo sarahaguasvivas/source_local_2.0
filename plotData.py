@@ -2,15 +2,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import struct
+import sys
 #df= pd.read_csv('testDataTest.csv')
 #plt.plot(df.iloc[:, 0])
 #plt.plot(df.iloc[:, 1])
 #plt.plot(df.iloc[:, 2])
 Data=""
-with open('testDataTest.txt', 'r') as f:
+with open(str(sys.argv[1])+'.txt', 'r') as f:
 	data= f.read()
 	str1= str(len(data)/4) + "f"
-	Data= Data+str(struct.unpack(str1, data))  
+	Data= Data+str(struct.unpack(str1, data))
 data= Data
 list_data= data.split(')(')
 data= {}
@@ -25,8 +26,8 @@ for i in range(len(list_data)):
 		data[i]= [float(j) for j in data[i]]
 		dataData+= data[i]
 
-plt.scatter(range(len(dataData)), [float(i) for i in dataData])
-plt.show()
+#plt.scatter(range(len(dataData)), [float(i) for i in dataData])
+#plt.show()
 data= np.reshape(dataData, (-1, 2))
 print(data.shape)
 plt.plot(range(data.shape[0]), data[:, 0])
