@@ -32,6 +32,7 @@ data= np.reshape(dataData, (-1, 2))
 print(data.shape)
 plt.plot(range(data.shape[0]), data[:, 0])
 plt.plot(range(data.shape[0]), data[:, 1])
+plt.ylim(0, 1)
 plt.show()
 """
 df= pd.read_csv('testData2.csv')
