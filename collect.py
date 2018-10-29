@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
-BUFFER_SIZE=2*4*400
+BUFFER_SIZE=2*4*500
 NUM_ADC=2
 
 IP_1= '192.168.50.201'
