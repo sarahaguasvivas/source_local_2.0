@@ -29,7 +29,7 @@ for i in range(len(list_of_files)):
     string_split= list_of_files[i].split('_')
     degrees= string_split[0]
     distance= string_split[2].split('.')[0]
-
+    print(data.shape)
     labels= np.tile([float(degrees), float(distance)], (data.shape[0], 1))
     BigData= np.vstack((BigData, np.concatenate((data, labels), axis=1)))
 
