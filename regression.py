@@ -7,14 +7,26 @@ from sklearn import preprocessing
 import pandas as pd
 import numpy as np
 import random
+from keras import backend as K
+import sys
+
+def custom_activation(x):
+    return 30*K.tanh(x)
+
 def model_function(data, labels, test, lab_test):
     model= Sequential()
     model.add(Dense(input_dim=250, output_dim=500))
-    model.add(Activation('relu'))
-    model.add(Dense(input_dim=500, output_dim=2))
+    model.add(Activation(custom_activation))
+    model.add(Dense(input_dim=500, output_dim=300))
+    model.add(Activation(custom_activation))
+    model.add(Dense(input_dim=300, output_dim= 1000))
+    model.add(Activation(custom_activation))
+    model.add(Dense(input_dim=1000, output_dim= 2))
     model.compile(loss='mean_squared_error', optimizer='rmsprop')
-    model.fit(data, labels, batch_size=1, nb_epoch=10,  verbose=2, validation_data=(test, lab_test))
+    model.fit(data, labels, batch_size=1, nb_epoch=50,  verbose=2, validation_data=(test, lab_test))
     print(model.predict(test, batch_size=1))
+    print("Labels:")
+    print(lab_test)
     return model
 if __name__== '__main__':
     train=0.8
@@ -28,11 +40,15 @@ if __name__== '__main__':
 
     missing = list(set(ind)- set(indexes))
 
-    training_data= data[indexes, data.shape[1]-2]
-    print(training_data.shape[1])
-    testing_data = data[missing, data.shape[1]-2]
+    training_data= data[indexes, :data.shape[1]-2]
+
+    testing_data = data[missing, :data.shape[1]-2]
     training_labels= data[indexes, -2:]
+    training_labels[:, 1]= training_labels[:, 1]/180
     testing_labels= data[missing, -2:]
+    testing_labels[:, 1]=testing_labels[:, 1]/180
+
     model= model_function(training_data, training_labels, testing_data, testing_labels)
+    sys.exit("Program done")
 
 
