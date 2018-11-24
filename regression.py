@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
-from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Flatten, Dropout
+from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Flatten, Dropout, BatchNormalization
 from keras.models import Sequential
 from keras.losses import cosine_proximity, mean_squared_error
 from sklearn import preprocessing
@@ -17,6 +17,7 @@ from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from scipy import signal
 WAVELET_THRESHOLD=0.1
+
 def plot_history(history):
     plt.figure()
     plt.xlabel('Epoch')
@@ -29,40 +30,39 @@ def plot_history(history):
     plt.ylim([0, 5])
     plt.show()
 def custom_loss(y_true, y_pred):
-    #return huber_loss(y_true, y_pred)
-    return 100*180*mean_squared_error(y_true, y_pred)
+    return huber_loss(y_true, y_pred)
+    #return mean_squared_error(y_true, y_pred)
     #return cosine_proximity(y_true, y_pred)
 
 def custom_activation(x):
-    return K.sigmoid(x)-0.5
-    #return K.tanh(x)
+    #return 30*K.sigmoid(x)
+    return 10*K.tanh(x)
     #return exponential(x)
     #return 10*linear(x)
 
 def model_function(data, labels, test, lab_test):
-    print(lab_test)
-    data= data.reshape(data.shape[0], data.shape[1], 1).astype(np.float)
-    test= test.reshape(test.shape[0], test.shape[1], 1).astype(np.float)
+
+    data= data.reshape(data.shape[0], data.shape[1], 1)
+    test= test.reshape(test.shape[0], test.shape[1], 1)
 
     model= Sequential()
-    model.add(Conv1D(filters=64, kernel_size=5, activation='relu', input_shape=(250, 1)))
-    model.add(MaxPooling1D(pool_size=5))
-
+    model.add(Conv1D(filters=32, kernel_size=5, input_shape=(250, 1)))
+    model.add(MaxPooling1D(5))
     model.add(Flatten())
-    model.add(Dense(input_dim= 4000, output_dim=10, activation=custom_activation))
-    model.add(Dense(input_dim= 25, output_dim=2, activation=custom_activation))
-    model.add(Dropout(0.3))
-    model.compile(loss=custom_loss, optimizer='adam')
-    print(lab_test)
-    print('here')
-    history= model.fit(data, labels, batch_size=10, nb_epoch=500,  verbose=2, validation_data=(test, lab_test))
+    model.add(BatchNormalization())
+    model.add(Dense(input_dim= 32*250, output_dim=3000, activation=custom_activation))
+    model.add(Dense(input_dim= 3000, output_dim=2, activation=None))
+    #model.add(Dense(input_dim= 1000, output_dim=300, activation=None))
+    #model.add(Dense(input_dim= 300, output_dim=2, activation=None))
+
+    model.add(Dropout(0.5))
+    model.compile(loss=custom_loss, optimizer='rmsprop')
+    history= model.fit(data, labels, batch_size=10, nb_epoch=100,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    print(predictions[:, 0]*180)
-    print(lab_test[:, 0]*180)
-    print(predictions[:, 1]*100)
-    print(lab_test[:, 1]*100)
+    print(predictions)
+    print(lab_test)
 if __name__== '__main__':
-    train=0.8
+    train=0.85
     WINDOW_SIZE=125
     NUM_ADC=2
     data= pd.read_csv('alldata.csv').values
@@ -95,8 +95,10 @@ if __name__== '__main__':
         if np.max(np.abs(cwtmatr1))>=WAVELET_THRESHOLD:
             testing_labels= np.vstack((testing_labels, testing_labels1[i, :]))
             testing_data= np.vstack((testing_data, testing_data1[i, :]))
-    training_labels[:, 0]= training_labels[:, 0]/180
+
     testing_labels[:, 0]= testing_labels[:,0]/180
     training_labels[:, 1]= training_labels[:, 1]/100
     testing_labels[:, 1]= testing_labels[:, 1]/100
+    training_labels[:, 0]= training_labels[:, 0]/180
+
     model= model_function(training_data, training_labels, testing_data, testing_labels)
