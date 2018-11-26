@@ -32,8 +32,8 @@ def plot_history(history):
     plt.show()
 def custom_loss(y_true, y_pred):
     #return mean_squared_error(y_true, y_pred)
-    a= y_true[:, 1]
-    b= y_pred[:, 1]
+    a= y_true[:, 1]*100
+    b= y_pred[:, 1]*100
     d= y_true[:, 0]
     e= y_pred[:, 0]
     delthet=d-e
@@ -56,19 +56,19 @@ def model_function(data, labels, test, lab_test):
 
     model= Sequential()
     model.add(Conv1D(filters=64, kernel_size=5, input_shape=(250, 1)))
-    model.add(MaxPooling1D(5))
+    model.add(MaxPooling1D(2))
     model.add(Conv1D(filters=32, kernel_size=5))
-    model.add(MaxPooling1D(5))
+    model.add(MaxPooling1D(2))
     model.add(Conv1D(filters=32, kernel_size=5))
-    model.add(MaxPooling1D(5))
+    model.add(MaxPooling1D(2))
 
     model.add(Flatten())
     model.add(Dense(3000, activation='relu'))
-    model.add(Dense(1000, activation='tanh'))
-    model.add(Dense(500, activation='tanh'))
+    model.add(Dense(1000, activation=custom_activation))
+    model.add(Dense(500, activation=custom_activation))
     model.add(Dense(2, activation='linear'))
 
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.2))
     model.compile(loss=custom_loss,optimizer='adam')
     history= model.fit(data, labels, batch_size=25, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
@@ -77,7 +77,7 @@ def model_function(data, labels, test, lab_test):
     model.save_weights('weights.h5py')
 
 if __name__== '__main__':
-    train=0.8
+    train=0.9
     WINDOW_SIZE=125
     NUM_ADC=2
     data= pd.read_csv('alldata.csv').values
@@ -110,6 +110,7 @@ if __name__== '__main__':
         if np.max(np.abs(cwtmatr1))>=WAVELET_THRESHOLD:
             testing_labels= np.vstack((testing_labels, testing_labels1[i, :]))
             testing_data= np.vstack((testing_data, testing_data1[i, :]))
-
+    training_labels[:, 1]/=100
+    testing_labels[:, 1]/=100
 
     model= model_function(training_data, training_labels, testing_data, testing_labels)
