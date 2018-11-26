@@ -31,17 +31,17 @@ def plot_history(history):
     plt.ylim([0, 5])
     plt.show()
 def custom_loss(y_true, y_pred):
-    return mean_squared_error(y_true, y_pred)
-    #a= y_true[:, 1]
-    #b= y_pred[:, 1]
-    #d= y_true[:, 0]
-    #e= y_pred[:, 0]
-    #delthet=d-e
-    #cosdelt= K.cos(delthet*np.pi/180)
+    #return mean_squared_error(y_true, y_pred)
+    a= y_true[:, 1]
+    b= y_pred[:, 1]
+    d= y_true[:, 0]
+    e= y_pred[:, 0]
+    delthet=d-e
+    cosdelt= K.cos(delthet*np.pi/180)
 
-    #c =a*a + b*b - 2*a*b*cosdelt
-    #res = K.mean(c)
-    #return K.sqrt(res)
+    c =a*a + b*b - 2*a*b*cosdelt
+    res = K.mean(c)
+    return K.sqrt(res)
 
 def custom_activation(x):
     #return K.sigmoid(x)-0.5
@@ -67,9 +67,9 @@ def model_function(data, labels, test, lab_test):
     model.add(Dense(50, activation=None))
     model.add(Dense(2, activation=None))
 
-    model.add(Dropout(0.5))
-    model.compile(loss=custom_loss,optimizer='rmsprop')
-    history= model.fit(data, labels, batch_size=25, nb_epoch=5000,  verbose=2, validation_data=(test, lab_test))
+    #model.add(Dropout(0.5))
+    model.compile(loss=custom_loss,optimizer='adam')
+    history= model.fit(data, labels, batch_size=5, nb_epoch=5000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print(predictions)
     print(lab_test)
@@ -110,9 +110,5 @@ if __name__== '__main__':
             testing_labels= np.vstack((testing_labels, testing_labels1[i, :]))
             testing_data= np.vstack((testing_data, testing_data1[i, :]))
 
-    #testing_labels[:, 0]= testing_labels[:,0]
-    #training_labels[:, 1]= training_labels[:, 1]
-    #testing_labels[:, 1]= testing_labels[:, 1]
-    #training_labels[:, 0]= training_labels[:, 0]
 
     model= model_function(training_data, training_labels, testing_data, testing_labels)
