@@ -36,16 +36,16 @@ def custom_loss(y_true, y_pred):
     b= y_pred[:, 1]
     d= y_true[:, 0]
     e= y_pred[:, 0]
-    delthet=e-d
+    delthet=d-e
     cosdelt= K.cos(delthet*np.pi/180)
 
-    c =K.abs(K.square(a) + K.square(b) - 2*a*b*cosdelt)
+    c =a*a + b*b - 2*a*b*cosdelt
     res = K.mean(c)
-    return res
+    return K.sqrt(res)
 
 def custom_activation(x):
     #return K.sigmoid(x)-0.5
-    return 10*K.tanh(x)
+    return 80*K.tanh(x)
     #return exponential(x)
     #return 10*linear(x)
 
@@ -55,18 +55,20 @@ def model_function(data, labels, test, lab_test):
     test= test.reshape(test.shape[0], test.shape[1], 1)
 
     model= Sequential()
-    model.add(Conv1D(filters=125, kernel_size=5, input_shape=(250, 1)))
+    model.add(Conv1D(filters=64, kernel_size=5, input_shape=(250, 1)))
+    model.add(MaxPooling1D(5))
     model.add(Conv1D(filters=64, kernel_size=5))
-
+    model.add(Conv1D(filters=64, kernel_size=5))
     model.add(MaxPooling1D(5))
     model.add(Flatten())
     model.add(BatchNormalization())
-    model.add(Dense(output_dim=256,input_dim=250*32, activation=custom_activation))
+    model.add(Dense(256, activation=custom_activation))
+    model.add(Dense(256, activation=custom_activation))
     model.add(Dense(2, activation=None))
 
-    model.add(Dropout(0.9))
+    #model.add(Dropout(0.5))
     model.compile(loss=custom_loss, optimizer='rmsprop')
-    history= model.fit(data, labels, batch_size=10, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=30, nb_epoch=500,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print(predictions)
     print(lab_test)
