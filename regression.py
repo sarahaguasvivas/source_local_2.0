@@ -67,7 +67,7 @@ def model_function(data, labels, test, lab_test):
     model.add(Dense(50, activation=None))
     model.add(Dense(2, activation=None))
 
-    #model.add(Dropout(0.5))
+    model.add(Dropout(0.3))
     model.compile(loss=custom_loss,optimizer='adam')
     history= model.fit(data, labels, batch_size=5, nb_epoch=5000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
