@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-
 from __future__ import print_function
 from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Flatten, Dropout, BatchNormalization
 from keras.models import Sequential
@@ -7,6 +6,8 @@ from keras.losses import cosine_proximity, mean_squared_error
 from sklearn import preprocessing
 from keras.activations import exponential, linear
 import pandas as pd
+from keras.optimizers import Adam, RMSprop
+from keras import regularizers
 import numpy as np
 from tensorflow.losses import huber_loss
 import random
@@ -37,7 +38,7 @@ def custom_loss(y_true, y_pred):
     d= y_true[:, 0]
     e= y_pred[:, 0]
     delthet=d-e
-    cosdelt= K.cos(delthet*np.pi/180)
+    cosdelt= K.cos(delthet*np.pi)
 
     c =a*a + b*b - 2*a*b*cosdelt
     res = K.mean(c)
@@ -57,23 +58,23 @@ def model_function(data, labels, test, lab_test):
     model= Sequential()
     model.add(Conv1D(filters=64, kernel_size=5, input_shape=(250, 1)))
     model.add(MaxPooling1D(5))
-    model.add(Dropout(0.3))
+    model.add(Dropout(0.5))
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
 
     model.add(Flatten())
-    model.add(Dense(3000, activation='relu'))
-    model.add(Dense(1000, activation='tanh'))
-    model.add(Dense(750, activation='tanh'))
+    model.add(Dense(300, activation='relu', kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(100, activation=custom_activation, kernel_regularizer=regularizers.l2(0.01)))
+    model.add(Dense(75, activation=custom_activation))
     model.add(Dense(2, activation='linear'))
 
-    model.add(Dropout(0.3))
-    model.compile(loss=custom_loss,optimizer='rmsprop')
-    history= model.fit(data, labels, batch_size=25, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
+    rms= RMSprop(lr=1e-4, rho=0.9, epsilon=None, decay=0.0)
+    model.compile(loss=custom_loss,optimizer=rms)
+    history= model.fit(data, labels, batch_size=5, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    print(predictions)
+    print(np.round(predictions, 4))
     print(lab_test)
     model.save_weights('weights.h5py')
 
@@ -113,5 +114,8 @@ if __name__== '__main__':
             testing_data= np.vstack((testing_data, testing_data1[i, :]))
     training_labels[:, 1]/=100
     testing_labels[:, 1]/=100
-
+    training_labels[:, 0]/=180
+    testing_labels[:, 0]/=180
+    print(training_labels)
+    print(testing_labels)
     model= model_function(training_data, training_labels, testing_data, testing_labels)
