@@ -19,7 +19,7 @@ import tensorflow as tf
 from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from scipy import signal
-WAVELET_THRESHOLD=0.1
+WAVELET_THRESHOLD=0.2
 sess = tf.Session()
 K.set_session(sess)
 
@@ -35,7 +35,7 @@ def plot_history(history):
     plt.ylim([0, 5])
     plt.show()
 def custom_loss(y_true, y_pred):
-    return mean_squared_error(y_true, y_pred)
+    return mean_squared_error(100*y_true, 100*y_pred)
     #a= y_true[:, 1]*100
     #b= y_pred[:, 1]*100
     #d= y_true[:, 0]
@@ -49,7 +49,7 @@ def custom_loss(y_true, y_pred):
 
 def custom_activation(x):
     #return K.sigmoid(x)-0.5
-    return 10*K.tanh(x)
+    return 5*K.tanh(x)
     #return exponential(x)
     #return 10*linear(x)
 
@@ -70,18 +70,17 @@ def model_function(data, labels, test, lab_test):
     model.add(MaxPooling1D(5))
     model.add(Flatten())
     model.add(Dense(1000, activation='relu', kernel_regularizer=regularizers.l2(0.03)))
-    model.add(Dense(1000, activation=custom_activation, kernel_regularizer= regularizers.l2(0.01)))
-    model.add(Dense(150, activation= 'linear', kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(1000, activation= 'relu', kernel_regularizer= regularizers.l2(0.03)))
+    model.add(Dense(50, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
     model.add(Dense(1, activation=None))
 
     rms= RMSprop(lr=1e-3, clipvalue= 0.5)
     model.compile(loss=custom_loss,optimizer=rms)
     history= model.fit(data, labels, batch_size=5, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    print(np.round(predictions, 4))
-    print(lab_test)
-    print(custom_loss(lab_test, predictions))
-
+    print(np.round(predictions, 4)-lab_test)
+    plt.plot(np.round(predictions, 4)-lab_test)
+    plt.show()
     ii=0
     for l in model.layers:
         print(str(l.input_shape) + ' ' + str(l.output_shape))
@@ -89,7 +88,7 @@ def model_function(data, labels, test, lab_test):
         filename.write(str(l.get_weights()))
         ii+=1
 if __name__== '__main__':
-    train=0.9
+    train=0.95
     WINDOW_SIZE=125
     NUM_ADC=2
     data= pd.read_csv('alldata.csv').values
@@ -126,6 +125,4 @@ if __name__== '__main__':
     testing_labels[:, 1]/=100
     training_labels[:, 0]/=180
     testing_labels[:, 0]/=180
-    print(training_labels)
-    print(testing_labels)
     model= model_function(training_data, training_labels[:, 1], testing_data, testing_labels[:, 1])
