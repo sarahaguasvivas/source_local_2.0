@@ -1,10 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 from __future__ import print_function
 from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Flatten, Dropout, BatchNormalization
 from keras.models import Sequential
 from keras.losses import cosine_proximity, mean_squared_error
+from keras import layers
 from sklearn import preprocessing
 from keras.activations import exponential, linear
+import keras
 import pandas as pd
 from keras.optimizers import Adam, RMSprop
 from keras import regularizers
@@ -20,6 +22,7 @@ from scipy import signal
 WAVELET_THRESHOLD=0.1
 sess = tf.Session()
 K.set_session(sess)
+
 def plot_history(history):
     plt.figure()
     plt.xlabel('Epoch')
@@ -56,30 +59,35 @@ def model_function(data, labels, test, lab_test):
     test= test.reshape(test.shape[0], test.shape[1], 1)
 
     model= Sequential()
-    model.add(BatchNormalization())
     model.add(Conv1D(filters=64, kernel_size=5, input_shape=(250, 1)))
     model.add(MaxPooling1D(5))
     model.add(Dropout(0.5))
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
     model.add(Dropout(0.5))
+
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
-
     model.add(Flatten())
-    model.add(Dense(1000, activation='relu', kernel_regularizer=regularizers.l2(0.01)))
+    model.add(Dense(1000, activation='relu', kernel_regularizer=regularizers.l2(0.03)))
     model.add(Dense(1000, activation=custom_activation, kernel_regularizer= regularizers.l2(0.01)))
-    model.add(Dense(150, activation= 'linear', kernel_regularizer= regularizers.l2(0.03)))
-    model.add(Dense(2, activation=None))
+    model.add(Dense(150, activation= 'linear', kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(1, activation=None))
 
     rms= RMSprop(lr=1e-3, clipvalue= 0.5)
     model.compile(loss=custom_loss,optimizer=rms)
-    history= model.fit(data, labels, batch_size=20, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=5, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print(np.round(predictions, 4))
     print(lab_test)
-    model.save_weights('weights.h5py')
+    print(custom_loss(lab_test, predictions))
 
+    ii=0
+    for l in model.layers:
+        print(str(l.input_shape) + ' ' + str(l.output_shape))
+        filename= open("params/weights"+str(ii)+".txt", "w")
+        filename.write(str(l.get_weights()))
+        ii+=1
 if __name__== '__main__':
     train=0.9
     WINDOW_SIZE=125
@@ -120,4 +128,4 @@ if __name__== '__main__':
     testing_labels[:, 0]/=180
     print(training_labels)
     print(testing_labels)
-    model= model_function(training_data, training_labels, testing_data, testing_labels)
+    model= model_function(training_data, training_labels[:, 1], testing_data, testing_labels[:, 1])
