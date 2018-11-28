@@ -32,17 +32,17 @@ def plot_history(history):
     plt.ylim([0, 5])
     plt.show()
 def custom_loss(y_true, y_pred):
-    #return mean_squared_error(y_true, y_pred)
-    a= y_true[:, 1]*100
-    b= y_pred[:, 1]*100
-    d= y_true[:, 0]
-    e= y_pred[:, 0]
-    delthet=d-e
-    cosdelt= K.cos(delthet*np.pi)
+    return mean_squared_error(y_true, y_pred)
+    #a= y_true[:, 1]*100
+    #b= y_pred[:, 1]*100
+    #d= y_true[:, 0]
+    #e= y_pred[:, 0]
+    #delthet=d-e
+    #cosdelt= K.cos(delthet*np.pi)
 
-    c =a*a + b*b - 2*a*b*cosdelt
-    res = K.mean(c)
-    return K.sqrt(res)
+    #c =a*a + b*b - 2*a*b*cosdelt
+    #res = K.mean(c)
+    #return K.sqrt(res)
 
 def custom_activation(x):
     #return K.sigmoid(x)-0.5
@@ -56,23 +56,25 @@ def model_function(data, labels, test, lab_test):
     test= test.reshape(test.shape[0], test.shape[1], 1)
 
     model= Sequential()
+    model.add(BatchNormalization())
     model.add(Conv1D(filters=64, kernel_size=5, input_shape=(250, 1)))
     model.add(MaxPooling1D(5))
-    model.add(Dropout(0.9))
+    model.add(Dropout(0.5))
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
+    model.add(Dropout(0.5))
     model.add(Conv1D(filters=32, kernel_size=5))
     model.add(MaxPooling1D(5))
 
     model.add(Flatten())
-    model.add(Dense(1000, activation='relu'))
-    model.add(Dense(1000, activation='tanh' ))
-    model.add(Dense(300, activation= 'tanh'))
+    model.add(Dense(1000, activation='relu', kernel_regularizer=regularizers.l2(0.01)))
+    model.add(Dense(1000, activation=custom_activation, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(150, activation= 'linear', kernel_regularizer= regularizers.l2(0.03)))
     model.add(Dense(2, activation=None))
 
-    rms= RMSprop(lr=1e-6, clipvalue= 0.5)
+    rms= RMSprop(lr=1e-3, clipvalue= 0.5)
     model.compile(loss=custom_loss,optimizer=rms)
-    history= model.fit(data, labels, batch_size=8, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=20, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print(np.round(predictions, 4))
     print(lab_test)
