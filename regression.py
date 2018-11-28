@@ -84,8 +84,10 @@ def model_function(data, labels, test, lab_test):
     ii=0
     for l in model.layers:
         print(str(l.input_shape) + ' ' + str(l.output_shape))
-        filename= open("params/weights"+str(ii)+".txt", "w")
-        filename.write(str(l.get_weights()))
+        #filename= open("params/weights"+str(ii)+".txt", "w")
+        #filename.write(str(l.get_weights()))
+        l.get_weights[0].tofile("params/weights"+str(ii)+".csv", sep=',', format=".7f")
+        l.get_weights[1].tofile("params/bias"+str(ii)+".csv", sep=',', format=".7f")
         ii+=1
 if __name__== '__main__':
     train=0.95
