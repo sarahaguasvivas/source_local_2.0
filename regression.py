@@ -22,7 +22,7 @@ from scipy import signal
 WAVELET_THRESHOLD=0.2
 sess = tf.Session()
 K.set_session(sess)
-
+np.set_printoptions(threshold=np.nan)
 def plot_history(history):
     plt.figure()
     plt.xlabel('Epoch')
@@ -76,7 +76,7 @@ def model_function(data, labels, test, lab_test):
 
     rms= RMSprop(lr=1e-3, clipvalue= 0.5)
     model.compile(loss=custom_loss,optimizer=rms)
-    history= model.fit(data, labels, batch_size=5, nb_epoch=1000,  verbose=2, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=25, nb_epoch=1500,  verbose=2, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     print(np.round(predictions, 4)-lab_test)
     plt.plot(np.round(predictions, 4)-lab_test)
@@ -84,10 +84,12 @@ def model_function(data, labels, test, lab_test):
     ii=0
     for l in model.layers:
         print(str(l.input_shape) + ' ' + str(l.output_shape))
-        #filename= open("params/weights"+str(ii)+".txt", "w")
-        #filename.write(str(l.get_weights()))
-        l.get_weights[0].tofile("params/weights"+str(ii)+".csv", sep=',', format=".7f")
-        l.get_weights[1].tofile("params/bias"+str(ii)+".csv", sep=',', format=".7f")
+        #print(l.get_weights())
+        #l.get_weights()[0].tofile("params/weights"+str(ii)+".txt", sep=',', format="%.7e")
+        #l.get_weights()[1].tofile("params/bias"+str(ii)+".txt", sep=',', format="%.7e")
+        filename=open("params/weights"+str(ii)+".txt", "w")
+        filename.write(str(l.get_weights()))
+
         ii+=1
 if __name__== '__main__':
     train=0.95
