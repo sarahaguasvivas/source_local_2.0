@@ -82,12 +82,13 @@ def model_function(data, labels, test, lab_test):
     plt.plot(np.round(predictions, 4)-lab_test)
     plt.show()
     ii=0
+
     for l in model.layers:
         print(str(l.input_shape) + ' ' + str(l.output_shape))
         #print(l.get_weights())
         #l.get_weights()[0].tofile("params/weights"+str(ii)+".txt", sep=',', format="%.7e")
         #l.get_weights()[1].tofile("params/bias"+str(ii)+".txt", sep=',', format="%.7e")
-        filename=open("params/weights"+str(ii)+".txt", "w")
+        filename=open("params1/weights"+str(ii)+".txt", "w")
         filename.write(str(l.get_weights()))
 
         ii+=1

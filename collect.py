@@ -5,22 +5,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
-BUFFER_SIZE=2*4*500
+BUFFER_SIZE=50000
 NUM_ADC=2
 
 IP_1= '192.168.50.201'
 IP_2= '192.168.50.129'
 IP_3= '192.168.50.173'
-filename= open(str(sys.argv[1])+'.txt',"w")
+filename= str(sys.argv[1])+'.csv'
+filef= open(filename, 'w')
+filef.close()
 sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((IP_3, 5005))
 print("Connection established!")
 try:
 	while (1):
 		data= sock.recv(BUFFER_SIZE)
-		#str1= str(len(data)/4) + "f"
-		#Window= struct.unpack(str1, data)
-		filename.write(str(data))
+		str1= str(len(data)/4) + "f"
+		Window= struct.unpack(str1, data)
+                print(len(Window))
+
+                if len(Window) % 2 != 0:
+                    Window= Window[:-3]
+                Window= pd.DataFrame(np.reshape(Window, (-1, 2)))
+		Window.to_csv(filename, mode= 'a',index=False,header=False)
 
 except Exception as e:
 	print(str(e))

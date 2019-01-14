@@ -3,56 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import struct
 import sys
-#df= pd.read_csv('testDataTest.csv')
-#plt.plot(df.iloc[:, 0])
-#plt.plot(df.iloc[:, 1])
-#plt.plot(df.iloc[:, 2])
-Data=""
-with open(str(sys.argv[1])+'.txt', 'r') as f:
-	data= f.read()
-	str1= str(len(data)/4) + "f"
-	Data= Data+str(struct.unpack(str1, data))
-data= Data
-list_data= data.split(')(')
-data= {}
-dataData= []
+import pandas as pd
 
-for i in range(len(list_data)):
-	list_data[i]= list_data[i].replace('(','' )
-	list_data[i]= list_data[i].replace(')', '')
-	list_data[i]= list_data[i].replace('\n', '')
-	data[i]= list_data[i].split(',')
-	if len(data[i]) > 0:
-		data[i]= [float(j) for j in data[i]]
-		dataData+= data[i]
-
-#plt.scatter(range(len(dataData)), [float(i) for i in dataData])
-#plt.show()
-data= np.reshape(dataData, (-1, 2))
+filename= str(sys.argv[1])+'.csv'
+data= pd.read_csv(filename, sep=',')
 print(data.shape)
-plt.plot(range(data.shape[0]), data[:, 0])
-plt.plot(range(data.shape[0]), data[:, 1])
+plt.plot(range(data.shape[0]), data.iloc[:, 0])
+plt.plot(range(data.shape[0]), data.iloc[:, 1])
 plt.ylim(0, 1)
 plt.show()
-"""
-df= pd.read_csv('testData2.csv')
-plt.plot(df.iloc[:, 0])
-plt.plot(df.iloc[:, 1])
-plt.plot(df.iloc[:, 2])
-
-plt.show()
-
-df= pd.read_csv('testData3.csv')
-plt.plot(df.iloc[:, 0])
-plt.plot(df.iloc[:, 1])
-plt.plot(df.iloc[:, 2])
-
-plt.show()
-
-df= pd.read_csv('testData4.csv')
-plt.plot(df.iloc[:, 0])
-plt.plot(df.iloc[:, 1])
-plt.plot(df.iloc[:, 2])
-
-plt.show()
-"""
