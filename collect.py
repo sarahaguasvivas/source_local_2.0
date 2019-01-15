@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
-BUFFER_SIZE=50000
+BUFFER_SIZE= 200000
 NUM_ADC=2
 
 IP_1= '192.168.50.201'
@@ -20,15 +20,16 @@ print("Connection established!")
 try:
 	while (1):
 		data= sock.recv(BUFFER_SIZE)
-		str1= str(len(data)/4) + "f"
-		Window= struct.unpack(str1, data)
-                print(len(Window))
+                if data:
+                    str1= str(len(data)/4) + "f"
+                    Window= struct.unpack(str1, data)
+                    print(len(Window))
 
-                if len(Window) % 2 != 0:
-                    Window= Window[:-3]
-                Window= pd.DataFrame(np.reshape(Window, (-1, 2)))
-		Window.to_csv(filename, mode= 'a',index=False,header=False)
-
+                    if len(Window) % NUM_ADC != 0:
+                        Window= Window[:-3]
+                    Window= pd.DataFrame(np.reshape(Window, (-1, 2)))
+                    Window.to_csv(filename, mode= 'a',index=False, header=False)
+                    print('.')
 except Exception as e:
 	print(str(e))
 
