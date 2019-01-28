@@ -16,13 +16,6 @@ NUM_ADCs= 2
 ESP_BUFFER_SIZE= 3000
 BUFFER_SIZE= 2*ESP_BUFFER_SIZE*4*NUM_ADCs
 
-filename= str(sys.argv[1])+'.csv'
-filef= open(filename, 'w')
-filef.close()
-sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((IP_3, 5005))
-print("Connection established!")
-
 def worker(data):
     NUM_ADC=2
     str1= str(len(data)/4) + "f"
@@ -33,6 +26,17 @@ def worker(data):
     Window= pd.DataFrame(np.reshape(Window, (-1, 2)))
     Window.to_csv(filename, mode= 'a',index=False, header=False)
     return
+
+def recv(sock):
+    BUFFER_SIZE= 32000
+    return sock.recv(BUFFER_SIZE)
+
+filename= str(sys.argv[1])+'.csv'
+filef= open(filename, 'w')
+filef.close()
+sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((IP_3, 5005))
+print("Connection established!")
 
 try:
 	while (1):
