@@ -17,7 +17,7 @@ try:
     listl=[]
     while (1):
         data= sock.recv(BUFFER_SIZE)
-        str1= str(len(data)/4) + "f"
+        str1= str(len(data)/4) + "I"
         data= struct.unpack(str1, data)
         listl+= list(data)
 
