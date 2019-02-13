@@ -59,7 +59,7 @@ if __name__ == "__main__":
     q= Manager.dict() #the processes will be sharing a dictionary (optional)
 
     ESPIPlist={}
-    for i in range(NUM_ESP)
+    for i in range(NUM_ESP):
     #This is optional, you delcare these if you are sharing a data structure
         q[i]= []
     # These were the IPs that I needed to connect
