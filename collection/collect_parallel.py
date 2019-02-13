@@ -36,7 +36,7 @@ def collection_function(ready_to_read, IP, TCP_PORT, q, espID):
     # and when.
     filename= str(sys.argv[1])+ '_' + str(espID)'.csv'
     sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((IP, 5005))
+    sock.connect((IP, TCP_PORT))
     print("Connection established for esp # " + str(espID))
     try:
         listl=[]
