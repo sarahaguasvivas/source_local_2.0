@@ -6,7 +6,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-NUM_ADC= 2
+NUM_ADC= 4
 datafile= open(sys.argv[1]+'.csv', 'r')
 datainfo= str(datafile.readlines()[0])
 datai= datainfo.split(",")
