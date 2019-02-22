@@ -57,13 +57,13 @@ def custom_activation(x):
 
 def model_function(data, labels, test, lab_test):
     model= Sequential()
-    model.add(Conv1D(filters=8, kernel_size=4, input_shape = (250, 1)))
+    model.add(Conv1D(filters=8, kernel_size=4, input_shape = (50, 1)))
     model.add(Conv1D(filters=8, kernel_size=4))
     model.add(Conv1D(filters=8, kernel_size=4))
     model.add(Flatten())
-    model.add(Dense(100, activation= 'relu'))
     model.add(Dense(50, activation= 'relu'))
-    model.add(Dense(50, activation= None, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(20, activation= 'relu'))
+    model.add(Dense(10, activation= None, kernel_regularizer= regularizers.l2(0.01)))
     model.add(Dense(1, activation=None))
 
     rms= RMSprop(lr=1e-4, clipvalue= 0.5)
@@ -91,7 +91,7 @@ def model_function(data, labels, test, lab_test):
         ii+=1
 if __name__== '__main__':
     train=0.90
-    data= pd.read_csv('collection/Data_Feb_6.csv').values
+    data= pd.read_csv('collection/allDataSmallerWindow.csv').values
 
     ind= list(np.arange(data.shape[0]))
 
@@ -103,8 +103,8 @@ if __name__== '__main__':
     testing_data = data[missing, :data.shape[1]-2]
     training_labels= data[indexes, -2:]
     testing_labels= data[missing, -2:]
-    training_data= training_data.reshape(-1, 250, 1)
-    testing_data= testing_data.reshape(-1, 250, 1)
+    training_data= training_data.reshape(-1, 50, 1)
+    testing_data= testing_data.reshape(-1, 50, 1)
     print(training_data.shape, testing_data.shape)
     print(training_labels.shape, testing_labels.shape)
 

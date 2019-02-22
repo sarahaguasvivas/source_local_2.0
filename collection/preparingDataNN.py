@@ -9,7 +9,7 @@ import sys
 
 listFiles= os.listdir('data_Feb_4')
 NUM_ADC= 2
-WINDOW_SIZE= 125
+WINDOW_SIZE= 25
 
 Data= pd.DataFrame()
 
@@ -64,5 +64,5 @@ for i in listFiles:
             line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array(labelTitle), (1, -1)), axis= 1)
             Data= Data.append(pd.DataFrame(line), ignore_index= True)
 print("Datafile saved!")
-Data.to_csv("allData.csv", index=False)
+Data.to_csv("allDataSmallerWindow.csv", index=False)
 
