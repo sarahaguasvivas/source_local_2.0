@@ -20,7 +20,9 @@ from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from scipy import signal
 
-WAVELET_THRESHOLD=0.2
+WINDOW_SIZE= 50
+NUM_ADC= 2
+
 sess = tf.Session()
 K.set_session(sess)
 np.set_printoptions(threshold=np.nan)
@@ -36,43 +38,34 @@ def plot_history(history):
     plt.legend()
     plt.ylim([0, 5])
     plt.show()
-def custom_loss(y_true, y_pred):
-    return mean_absolute_error(y_true, y_pred)
-    #a= y_true[:, 1]
-    #b= y_pred[:, 1]
-    #d= y_true[:, 0]
-    #e= y_pred[:, 0]
-    #delthet=d-e
-    #cosdelt= K.cos(delthet*np.pi)
 
-#    c =a*a + b*b - 2*a*b*cosdelt
-#    res = K.mean(c)
-#    return K.sqrt(res)
+def custom_loss(y_true, y_pred):
+    r_hat = y_pred[:, 1]
+    r_true = y_true[:, 1]
+    th_hat= y_pred[:, 0]
+    th_true= y_true[:, 0]
+    coseno= K.cos(th_hat-th_true)
+    if coseno!=coseno:
+        coseno= tf.Print(coseno, [coseno], "coseno")
+    return K.abs(r_true**2 + r_hat**2 - 2*r_true*r_hat*coseno)
 
 def custom_activation(x):
-    #return K.sigmoid(x)-0.5
     return K.tanh(x)
-    #return exponential(x)
-    #return 10*linear(x)
 
 def model_function(data, labels, test, lab_test):
     model= Sequential()
-    model.add(Conv1D(filters=8, kernel_size=4, input_shape = (50, 1)))
-    model.add(Conv1D(filters=8, kernel_size=4))
-    model.add(Conv1D(filters=8, kernel_size=4))
+    model.add(Conv1D(filters=12, kernel_size=8))
     model.add(Flatten())
-    model.add(Dense(50, activation= 'relu'))
-    model.add(Dense(20, activation= 'relu'))
-    model.add(Dense(10, activation= None, kernel_regularizer= regularizers.l2(0.01)))
-    model.add(Dense(1, activation=None))
+    model.add(Dense(2000, activation= 'relu', kernel_regularizer=regularizers.l1(0.002)))
+    model.add(Dense(500, activation= None))
+    model.add(Dense(2, activation=None))
 
-    rms= RMSprop(lr=1e-4, clipvalue= 0.5)
-    model.compile(loss='mae',optimizer=rms)
-    history= model.fit(data, labels, batch_size=10, nb_epoch=7000,  verbose=1, validation_data=(test, lab_test))
+    rms= RMSprop(lr=1e-5)
+    model.compile(loss=custom_loss,optimizer=rms)
+    history= model.fit(data, labels, batch_size=100, nb_epoch=30000,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    model.save("nn_regression_att2.hdf5")
+    model.save("nn_regression_att3.hdf5")
     print("predictions-ground_truth:")
-    #print(predictions-lab_test)
     print("predictions shape:", predictions.shape)
     print("labels test shape: ", lab_test.shape)
     plt.plot(predictions-lab_test)
@@ -82,16 +75,10 @@ def model_function(data, labels, test, lab_test):
 
     for l in model.layers:
         print(str(l.input_shape) + ' ' + str(l.output_shape))
-        #print(l.get_weights())
-        #l.get_weights()[0].tofile("params/weights"+str(ii)+".txt", sep=',', format="%.7e")
-        #l.get_weights()[1].tofile("params/bias"+str(ii)+".txt", sep=',', format="%.7e")
-        #filename=open("params1/weights"+str(ii)+".txt", "w")
-        #filename.write(str(l.get_weights()))
-
         ii+=1
 if __name__== '__main__':
-    train=0.90
-    data= pd.read_csv('collection/allDataSmallerWindow.csv').values
+    train=0.60
+    data= pd.read_csv('collection/allDataSmallerWindow1.csv').values
 
     ind= list(np.arange(data.shape[0]))
 
@@ -103,9 +90,10 @@ if __name__== '__main__':
     testing_data = data[missing, :data.shape[1]-2]
     training_labels= data[indexes, -2:]
     testing_labels= data[missing, -2:]
-    training_data= training_data.reshape(-1, 50, 1)
-    testing_data= testing_data.reshape(-1, 50, 1)
+
+    training_data= training_data.reshape(-1, WINDOW_SIZE*NUM_ADC, 1)
+    testing_data= testing_data.reshape(-1, WINDOW_SIZE*NUM_ADC, 1)
+
     print(training_data.shape, testing_data.shape)
     print(training_labels.shape, testing_labels.shape)
-
-    model= model_function(training_data, training_labels[:, 1], testing_data, testing_labels[:, 1])
+    model= model_function(training_data, training_labels, testing_data, testing_labels)

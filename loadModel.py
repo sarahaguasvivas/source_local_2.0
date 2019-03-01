@@ -10,10 +10,14 @@ f= h5py.File('nn_regression.h5', 'r')
 model= load_model('nn_regression.h5')
 textFile= open("wr.txt", "w")
 
+inp= model.input
+outputs = [layer.output for layer in model.layers]          # all layer outputs
+functor = K.function([inp, K.learning_phase()], outputs )   # evaluation function
 
 layer= int(sys.argv[1])
 print(model.summary())
 input_size= model.layers[layer].input_shape
+first_input= model.layers[0].input_shape
 weights= model.layers[layer].get_weights()[0] #weights
 biases= model.layers[layer].get_weights()[1] #biases
 print("input_shape:")
@@ -47,8 +51,8 @@ print(model.layers[0])
 print("Keys: %s" % f.keys())
 a_group_key= list(f.keys())[0]
 
-test= np.ones((1, 50, 2))
-layer_outs=functor([test, layer])
+test= np.ones((1, 250, 1))
+layer_outs=functor([test, 6])
 print(layer_outs)
 
 

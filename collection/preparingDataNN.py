@@ -9,8 +9,8 @@ import sys
 
 listFiles= os.listdir('data_Feb_4')
 NUM_ADC= 2
-WINDOW_SIZE= 25
-
+WINDOW_SIZE= 100
+LIMIT_NONE= 100
 Data= pd.DataFrame()
 
 maximum= 0
@@ -54,7 +54,8 @@ for i in listFiles:
     i= i.replace('.csv', '')
     labelTitle= i.split("_")
     labelTitle= [float(i) for i in labelTitle]
-
+    print("Looping through data...")
+    num_none= 0
     for ii in range(0, data.shape[0], WINDOW_SIZE):
         # ii is index starting window
         window_spectrum= cwtmatr[:, ii:ii+WINDOW_SIZE]
@@ -63,6 +64,13 @@ for i in listFiles:
         if (np.max(window_spectrum)>0.1):
             line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array(labelTitle), (1, -1)), axis= 1)
             Data= Data.append(pd.DataFrame(line), ignore_index= True)
+
+        elif num_none<LIMIT_NONE:
+            num_none+=1
+            line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array([sys.float_info.max, sys.float_info.max]), (1, -1)), axis=1)
+            Data= Data.append(pd.DataFrame(line), ignore_index=True)
+    print("listFile " + str(i) + "/"+ str(len(listFiles)))
+
 print("Datafile saved!")
-Data.to_csv("allDataSmallerWindow.csv", index=False)
+Data.to_csv("allDataSmallerWindow2.csv", index=False)
 
