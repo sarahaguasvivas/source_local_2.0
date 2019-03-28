@@ -55,9 +55,9 @@ def custom_activation(x):
 
 def model_function(data, labels, test, lab_test):
     model= Sequential()
+    model.add(Conv1D(filters=2, kernel_size=2))
+    model.add(Conv1D(filters=2, kernel_size=2))
     model.add(Flatten())
-    model.add(Dense(100, activation= 'relu', kernel_regularizer=regularizers.l1(0.01)))
-    model.add(Dense(50, activation= 'relu', kernel_regularizer=regularizers.l1(0.02)))
     model.add(Dense(20, activation= None))
     model.add(Dense(3, activation=None))
 
@@ -65,7 +65,7 @@ def model_function(data, labels, test, lab_test):
     model.compile(loss=custom_loss,optimizer=rms)
     history= model.fit(data, labels, batch_size=100, nb_epoch=700,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    model.save("configurationA.hdf5")
+    model.save("configurationC.hdf5")
     print("predictions-ground_truth:")
     print("predictions shape:", predictions.shape)
     print("labels test shape: ", lab_test.shape)

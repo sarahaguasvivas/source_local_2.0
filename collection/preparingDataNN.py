@@ -8,9 +8,11 @@ import os
 import sys
 
 listFiles= os.listdir('data_Feb_4')
+print(listFiles)
 NUM_ADC= 2
-WINDOW_SIZE= 100
+WINDOW_SIZE= 5
 LIMIT_NONE= 100
+WAVELET_THRESHOLD= 0.1
 Data= pd.DataFrame()
 
 maximum= 0
@@ -51,6 +53,7 @@ for i in listFiles:
     print(cwtmatr.shape)
     print(len(data))
     """
+    print(i)
     i= i.replace('.csv', '')
     labelTitle= i.split("_")
     labelTitle= [float(i) for i in labelTitle]
@@ -61,14 +64,14 @@ for i in listFiles:
         window_spectrum= cwtmatr[:, ii:ii+WINDOW_SIZE]
         window_data= data[ii:ii+WINDOW_SIZE, :]
 
-        if (np.max(window_spectrum)>0.1):
+        if (np.max(window_spectrum)>WAVELET_THRESHOLD):
             line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array(labelTitle), (1, -1)), axis= 1)
             Data= Data.append(pd.DataFrame(line), ignore_index= True)
 
-        elif num_none<LIMIT_NONE:
-            num_none+=1
-            line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array([sys.float_info.max, sys.float_info.max]), (1, -1)), axis=1)
-            Data= Data.append(pd.DataFrame(line), ignore_index=True)
+        #elif num_none<LIMIT_NONE:
+        #    num_none+=1
+        #    line= np.append(np.reshape(window_data, (1, -1)), np.reshape(np.array([sys.float_info.max, sys.float_info.max]), (1, -1)), axis=1)
+        #    Data= Data.append(pd.DataFrame(line), ignore_index=True)
     print("listFile " + str(i) + "/"+ str(len(listFiles)))
 
 print("Datafile saved!")
