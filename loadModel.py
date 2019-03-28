@@ -60,7 +60,7 @@ print(model.layers[0])
 print("Keys: %s" % f.keys())
 a_group_key= list(f.keys())[0]
 
-test= np.ones((1, 200, 1))
+test= np.ones((1, 10, 1))
 layer_outs=functor([test, 4])
 print(layer_outs)
 

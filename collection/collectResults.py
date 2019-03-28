@@ -4,12 +4,13 @@ import socket
 import sys
 
 IP_1= '192.168.1.3'
+IP_2= '192.168.1.4'
 
 BUFFER_SIZE= 7000
 
 filename= str(sys.argv[1])+'.csv'
 sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((IP_1, 5005))
+sock.connect((IP_2, 5005))
 print("Connection established!")
 try:
     listl=[]

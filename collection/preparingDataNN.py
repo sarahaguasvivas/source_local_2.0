@@ -10,7 +10,7 @@ import sys
 listFiles= os.listdir('data_Feb_4')
 print(listFiles)
 NUM_ADC= 2
-WINDOW_SIZE= 5
+WINDOW_SIZE= 15
 LIMIT_NONE= 100
 WAVELET_THRESHOLD= 0.1
 Data= pd.DataFrame()

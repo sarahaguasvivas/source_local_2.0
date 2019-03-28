@@ -20,7 +20,7 @@ from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from scipy import signal
 
-WINDOW_SIZE= 5
+WINDOW_SIZE= 15
 NUM_ADC= 2
 
 sess = tf.Session()
@@ -58,12 +58,15 @@ def model_function(data, labels, test, lab_test):
     model.add(Conv1D(filters=2, kernel_size=2))
     model.add(Conv1D(filters=2, kernel_size=2))
     model.add(Flatten())
-    model.add(Dense(20, activation= None))
+    model.add(Dense(100, activation= 'relu', kernel_regularizer = regularizers.l2(0.02)))
+    model.add(Dense(100, activation= 'relu', kernel_regularizer= regularizers.l2(0.02)))
+    model.add(Dense(50, activation= None, kernel_regularizer= regularizers.l2(0.02)))
+    model.add(Dense(10, activation= None, kernel_regularizer= regularizers.l2(0.02)))
     model.add(Dense(3, activation=None))
 
-    rms= RMSprop(lr=1e-5)
+    rms= RMSprop(lr=1e-4)
     model.compile(loss=custom_loss,optimizer=rms)
-    history= model.fit(data, labels, batch_size=100, nb_epoch=700,  verbose=1, validation_data=(test, lab_test))
+    history= model.fit(data, labels, batch_size=10, nb_epoch=5000,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
     model.save("configurationC.hdf5")
     print("predictions-ground_truth:")
@@ -90,11 +93,11 @@ if __name__== '__main__':
     training_data= data[indexes, :data.shape[1]-2]
     testing_data = data[missing, :data.shape[1]-2]
 
-    training_labels= np.reshape(data[indexes, 1], (-1, 1))
-    testing_labels= np.reshape(data[missing, 1], (-1, 1))
+    training_labels= np.reshape(data[indexes, -1], (-1, 1))
+    testing_labels= np.reshape(data[missing, -1], (-1, 1))
 
-    training_angles= np.reshape(data[indexes, 0], (-1, 1))
-    testing_angles= np.reshape(data[missing, 0], (-1, 1))
+    training_angles= np.reshape(data[indexes, -2], (-1, 1))
+    testing_angles= np.reshape(data[missing, -2], (-1, 1))
 
     training_labels= np.concatenate((training_labels, np.cos(training_angles)), axis=1)
     training_labels= np.concatenate((training_labels, np.sin(training_angles)), axis=1)
@@ -102,7 +105,7 @@ if __name__== '__main__':
     testing_labels= np.concatenate((testing_labels, np.cos(testing_angles)), axis=1)
     testing_labels= np.concatenate((testing_labels, np.sin(testing_angles)), axis=1)
     # labels: (r, cos(th), sen(th))
-
+    print(training_labels)
     training_data= training_data.reshape(-1, WINDOW_SIZE*NUM_ADC, 1)
     testing_data= testing_data.reshape(-1, WINDOW_SIZE*NUM_ADC, 1)
 
