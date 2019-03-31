@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from __future__ import print_function
 from keras.layers import Dense, Activation, Conv1D, MaxPooling1D, Flatten, Dropout, BatchNormalization
 from keras.models import Sequential
@@ -20,7 +20,7 @@ from sklearn.svm import SVR
 import matplotlib.pyplot as plt
 from scipy import signal
 
-WINDOW_SIZE= 15
+WINDOW_SIZE= 5
 NUM_ADC= 2
 
 sess = tf.Session()
@@ -48,27 +48,28 @@ def custom_loss(y_true, y_pred):
     sin_th_true= y_true[:, 2]
     coseno= cos_th_hat*cos_th_true + sin_th_hat*sin_th_true
 
-    return K.abs(r_true**2 + r_hat**2 - 2*r_true*r_hat*coseno)
+    return K.abs(r_true*r_true + r_hat*r_hat - 2*r_true*r_hat*coseno)
 
 def custom_activation(x):
     return K.tanh(x)
 
 def model_function(data, labels, test, lab_test):
     model= Sequential()
-    model.add(Conv1D(filters=2, kernel_size=2))
-    model.add(Conv1D(filters=2, kernel_size=2))
+    #model.add(Conv1D(filters=3, kernel_size=5))
+    model.add(Conv1D(filters=3, kernel_size=5))
     model.add(Flatten())
-    model.add(Dense(100, activation= 'relu', kernel_regularizer = regularizers.l2(0.02)))
-    model.add(Dense(100, activation= 'relu', kernel_regularizer= regularizers.l2(0.02)))
-    model.add(Dense(50, activation= None, kernel_regularizer= regularizers.l2(0.02)))
-    model.add(Dense(10, activation= None, kernel_regularizer= regularizers.l2(0.02)))
-    model.add(Dense(3, activation=None))
+    model.add(Dense(50, activation= custom_activation, kernel_regularizer = regularizers.l2(0.01)))
+    model.add(Dense(50, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(50, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(10, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(3, activation=None, kernel_regularizer= regularizers.l2(0.01)))
 
-    rms= RMSprop(lr=1e-4)
+    rms= RMSprop(lr=1e-5)
     model.compile(loss=custom_loss,optimizer=rms)
-    history= model.fit(data, labels, batch_size=10, nb_epoch=5000,  verbose=1, validation_data=(test, lab_test))
+    #model.compile(loss='mse', optimizer=rms)
+    history= model.fit(data, labels, batch_size=100, nb_epoch=100000,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    model.save("configurationC.hdf5")
+    model.save("configurationC_att3.hdf5")
     print("predictions-ground_truth:")
     print("predictions shape:", predictions.shape)
     print("labels test shape: ", lab_test.shape)

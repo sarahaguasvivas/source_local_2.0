@@ -10,9 +10,9 @@ import sys
 listFiles= os.listdir('data_Feb_4')
 print(listFiles)
 NUM_ADC= 2
-WINDOW_SIZE= 15
+WINDOW_SIZE= 5
 LIMIT_NONE= 100
-WAVELET_THRESHOLD= 0.1
+WAVELET_THRESHOLD= 0.15
 Data= pd.DataFrame()
 
 maximum= 0
