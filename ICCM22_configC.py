@@ -61,15 +61,15 @@ def model_function(data, labels, test, lab_test):
     model.add(Dense(50, activation= custom_activation, kernel_regularizer = regularizers.l2(0.01)))
     model.add(Dense(50, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
     model.add(Dense(50, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
-    model.add(Dense(10, activation= custom_activation, kernel_regularizer= regularizers.l2(0.01)))
+    model.add(Dense(50, activation= None, kernel_regularizer= regularizers.l2(0.01)))
     model.add(Dense(3, activation=None, kernel_regularizer= regularizers.l2(0.01)))
 
-    rms= RMSprop(lr=1e-5)
+    rms= RMSprop(lr=1e-4)
     model.compile(loss=custom_loss,optimizer=rms)
     #model.compile(loss='mse', optimizer=rms)
     history= model.fit(data, labels, batch_size=100, nb_epoch=100000,  verbose=1, validation_data=(test, lab_test))
     predictions=model.predict(test, batch_size=1)
-    model.save("configurationC_att3.hdf5")
+    model.save("configurationC_att4.hdf5")
     print("predictions-ground_truth:")
     print("predictions shape:", predictions.shape)
     print("labels test shape: ", lab_test.shape)
@@ -82,7 +82,7 @@ def model_function(data, labels, test, lab_test):
         print(str(l.input_shape) + ' ' + str(l.output_shape))
         ii+=1
 if __name__== '__main__':
-    train=0.70
+    train=0.80
     data= pd.read_csv('collection/allDataSmallerWindow2.csv').values
 
     ind= list(np.arange(data.shape[0]))
