@@ -17,27 +17,27 @@ def custom_loss(y_true, y_pred):
 
 keras.losses.custom_loss=custom_loss
 
-model= load_model('configurationC.hdf5')
+model= load_model(str(sys.argv[1]) + '.hdf5')
 textFile= open("wr.txt", "w")
 
 inp= model.input
 outputs = [layer.output for layer in model.layers]          # all layer outputs
 functor = K.function([inp, K.learning_phase()], outputs)   # evaluation function
 
-layer= int(sys.argv[1])
+layer= int(sys.argv[2])
 print(model.summary())
 input_size= model.layers[layer].input_shape
+print("input_shape:")
+print(input_size)
+print("layer config:")
+print(model.layers[layer].get_config())
 first_input= model.layers[0].input_shape
 weights= model.layers[layer].get_weights()[0] #weights
 biases= model.layers[layer].get_weights()[1] #biases
-print("input_shape:")
-print(input_size)
 print("Shape Weights:")
 print(weights.shape)
 print("Shape biases:")
 print(biases.shape)
-print("layer config:")
-print(model.layers[layer].get_config())
 
 strWeights= str(list(weights))
 strBiases= str(list(biases))
@@ -57,14 +57,11 @@ print()
 print(strBiases)
 
 print(model.layers[0])
-print("Keys: %s" % f.keys())
-a_group_key= list(f.keys())[0]
+#print("Keys: %s" % f.keys())
+#a_group_key= list(f.keys())[0]
 
-test= np.ones((1, 10, 1))
-layer_outs=functor([test, 4])
+test= np.ones((1, 40, 1))
+layer_outs=functor([test, 5])
 print(layer_outs)
 
-
-data= list(f[a_group_key])
-print(data)
 

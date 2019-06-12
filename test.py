@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 #  Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 #
@@ -22,7 +22,7 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 import random
-tf.logging.set_verbosity(tf.logging.INFO) 
+tf.logging.set_verbosity(tf.logging.INFO)
 
 def cnn_model_fn(features, labels, mode):
   # Input Layer
@@ -36,7 +36,7 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 28, 28, 32]
   conv1 = tf.layers.conv2d(
       inputs=input_layer,
-      filters=32, 
+      filters=32,
       kernel_size=[2, 2],
       padding="same",
       activation=tf.nn.relu)
@@ -91,7 +91,7 @@ def cnn_model_fn(features, labels, mode):
   # Calculate Loss (for both TRAIN and EVAL modes)
   loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=logits))
   # Configure the Training Op (for TRAIN mode)
-  
+
   if mode == tf.estimator.ModeKeys.TRAIN:
     optimizer = tf.train.GradientDescentOptimizer(learning_rate=1e-3)
     train_op = optimizer.minimize(
@@ -108,14 +108,14 @@ def cnn_model_fn(features, labels, mode):
 
 def main(unused_argv):
   # Load training and eval data
-  train_data = np.load('terrains_train_features.npy') 
-  train_labels = np.load('terrains_train_labels.npy') 
+  train_data = np.load('terrains_train_features.npy')
+  train_labels = np.load('terrains_train_labels.npy')
   train_labels= train_labels.astype(int)
-  train_labels= np.array(train_labels).reshape(-1)  
+  train_labels= np.array(train_labels).reshape(-1)
   train_data= train_data.transpose((2, 0, 1))
-  eval_data = np.load('terrains_test_features.npy') 
+  eval_data = np.load('terrains_test_features.npy')
   eval_data = eval_data.transpose((2, 0, 1))
-  eval_labels =np.load('terrains_test_labels.npy') 
+  eval_labels =np.load('terrains_test_labels.npy')
   eval_labels= eval_labels.astype(int)
   eval_labels= np.array(eval_labels).reshape(-1)
 # Create the Estimator
@@ -160,7 +160,7 @@ if __name__ == "__main__":
   data1= np.array(data1)
   data2= np.array(data2)
   data1 = np.reshape(data1[:-1-data1.shape[0] % WINDOW_SIZE + 1], (WINDOW_SIZE, 4, -1))
-  y= np.zeros((data1.shape[2], 1)) 
+  y= np.zeros((data1.shape[2], 1))
   data2 = np.reshape(data2[:-1-data2.shape[0] % WINDOW_SIZE + 1], (WINDOW_SIZE, 4, -1))
   y= np.vstack((y, np.ones((data2.shape[2], 1))))
   x= np.concatenate((data1, data2), axis=2)
@@ -173,12 +173,12 @@ if __name__ == "__main__":
   label_train=y[indexes]
   data_test= x[:, :, missing]
 
-  label_test= y[missing]  
+  label_test= y[missing]
 
   np.save('terrains_train_features', data_train)
   np.save('terrains_train_labels', label_train)
   np.save('terrains_test_features', data_test)
   np.save('terrains_test_labels', label_test)
-  
+
   tf.app.run()
 

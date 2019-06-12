@@ -10,7 +10,7 @@ NUM_ADC= 3
 datafile= open(sys.argv[1]+'.csv', 'r')
 datainfo= str(datafile.readlines()[0])
 datai= datainfo.split(",")
-data= [float(i)/268372897.0 for i in datai]
+data= [float(i) for i in datai]
 
 print(max(data))
 

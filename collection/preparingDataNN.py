@@ -7,20 +7,20 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
-listFiles= os.listdir('data_Feb_4')
+listFiles= os.listdir('data_June_10_2019')
 print(listFiles)
 NUM_ADC= 2
-WINDOW_SIZE= 5
+WINDOW_SIZE= 20
 LIMIT_NONE= 100
-WAVELET_THRESHOLD= 0.15
+WAVELET_THRESHOLD= 0.2
 Data= pd.DataFrame()
 
 maximum= 0
 for i in listFiles:
-    filefile= open(os.path.join('data_Feb_4', i))
+    filefile= open(os.path.join('data_June_10_2019', i))
     data= str(filefile.readlines()[0])
     datai= data.split(",")
-    data= [float(i)/268372897.0 for i in datai]
+    data= [float(i) for i in datai]
     if np.max(data) > maximum:
         maximum= np.max(data)
     widths= np.arange(1, 31)
@@ -56,9 +56,11 @@ for i in listFiles:
     print(i)
     i= i.replace('.csv', '')
     labelTitle= i.split("_")
+    labelTitle= labelTitle[:2]
     labelTitle= [float(i) for i in labelTitle]
     print("Looping through data...")
     num_none= 0
+    print(labelTitle)
     for ii in range(0, data.shape[0], WINDOW_SIZE):
         # ii is index starting window
         window_spectrum= cwtmatr[:, ii:ii+WINDOW_SIZE]
@@ -75,5 +77,5 @@ for i in listFiles:
     print("listFile " + str(i) + "/"+ str(len(listFiles)))
 
 print("Datafile saved!")
-Data.to_csv("allDataSmallerWindow2.csv", index=False)
+Data.to_csv("data_ICCM_June_10.csv", index=False)
 
