@@ -6,12 +6,11 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 
-NUM_ADC= 4
+NUM_ADC= 2
 datafile= open(sys.argv[1]+'.csv', 'r')
 datainfo= str(datafile.readlines()[0])
 datai= datainfo.split(",")
-data= [float(i)/268372897.0 for i in datai]
-#268372897.0
+data= [float(i) for i in datai]
 print(max(data))
 
 Data= np.array(data)

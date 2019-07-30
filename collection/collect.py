@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import struct
 import socket
 import sys
@@ -15,6 +15,7 @@ BUFFER_SIZE= 1000000
 filename= str(sys.argv[1])+'.csv'
 sock= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((IP_6, 5005))
+
 print("Connection established!")
 try:
     listl=[]
