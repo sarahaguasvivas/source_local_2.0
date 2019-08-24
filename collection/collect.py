@@ -19,7 +19,7 @@ sock.connect((IP_6, 5005))
 print("Connection established!")
 try:
     listl=[]
-    while (1):
+    while True:
         data= sock.recv(BUFFER_SIZE)
         str1= str(len(data)/4) + "f"
         data= struct.unpack(str1, data)

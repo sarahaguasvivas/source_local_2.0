@@ -26,7 +26,6 @@ NUM_ADC= 2
 
 sess = tf.Session()
 K.set_session(sess)
-#np.set_printoptions(threshold=np.nan)
 
 def plot_history(history):
     plt.figure()
@@ -41,34 +40,29 @@ def plot_history(history):
     plt.show()
 
 def custom_loss(y_true, y_pred):
-    r_hat = y_pred[:, 0]
-    r_true = y_true[:, 0]
-    cos_th_hat= y_pred[:, 2]
-    cos_th_true= y_true[:, 2]
-    sin_th_hat= y_pred[:, 1]
-    sin_th_true= y_true[:, 1]
-    coseno= cos_th_hat*cos_th_true + sin_th_hat*sin_th_true
-    return K.abs(r_true*r_true + r_hat*r_hat - 2.0*r_true*r_hat*coseno)
+    sinediff= K.sin(y_pred[:, 0]- y_true[:, 0])
+    cosdiff = K.cos(y_pred[:, 1] - y_true[:, 1])
+    delta = tf.math.atan2(sinediff, cosdiff)
+    return K.abs(delta)
+    #return 0.5*(sinediff**2 + cosdiff**2)
 
 def huber_loss(y_true, y_pred):
     return tf.losses.huber_loss(y_true, y_pred)
 
 def custom_activation(x):
-    return 10*K.tanh(x)
+    return 20.*K.tanh(x)
 
 def model_theta(data, labels, test, lab_test):
     model= Sequential()
-    #model.add(Conv1D(kernel_size=6, filters=4))
-    #model.add(Conv1D(kernel_size=4, filters=12))
-    #model.add(Conv1D(kernel_size=2, filters=12))
+    model.add(Conv1D(kernel_size=8, filters =2))
     model.add(Flatten())
-    model.add(Dense(20, activation= 'relu', kernel_regularizer=regularizers.l2(0.02)))
-    model.add(Dense(10, activation= 'relu', kernel_regularizer=regularizers.l2(0.02)))
+    model.add(Dense(50, activation='tanh'))
+    model.add(Dense(50, activation='tanh'))
     model.add(Dense(2, activation= None, kernel_regularizer=regularizers.l2(0.02)))
 
-    rms= RMSprop(lr=1e-3)
-    model.compile(loss='mse', optimizer='adam')
-    history= model.fit(data, labels, batch_size=1000, nb_epoch=1000,  \
+    rms= RMSprop(lr=1e-4)
+    model.compile(loss='mse', optimizer=rms)
+    history= model.fit(data, labels, batch_size=100, nb_epoch=5000,  \
                     verbose=1, validation_data=(test, lab_test))
 
     predictions=model.predict(test, batch_size=1)
@@ -76,19 +70,12 @@ def model_theta(data, labels, test, lab_test):
     np.savetxt('predictions_theta.csv', predictions)
     np.savetxt('labels_test_theta.csv', lab_test)
 
-    model.save("../model_theta1.hdf5")
+    model.save("../model_theta.hdf5")
     error= predictions-lab_test
     plt.plot(error[:, 0], label=r'$r_{error}[cm]$')
 
-    #sin_cos_ratio= np.arctan2(predictions[:, 1], predictions[:, 2]) - np.arctan2(lab_test[:, 1], lab_test[:, 2])
-    #plt.plot(sin_cos_ratio, label=r'$\frac{sin \theta}{cos \theta}_{error}$')
-    #plt.title('Errors in Predictions')
-    #plt.legend()
-    #plt.show()
     print("mean_error r: ", np.mean(error[:, 0]))
     print("std_dev r: ", np.std(error[:, 0]))
-    #print("mean_error sin/cos: ", np.mean(sin_cos_ratio))
-    #print("std_dev sin/cos: ", np.std(sin_cos_ratio))
     ii=0
 
     for l in model.layers:
@@ -96,20 +83,22 @@ def model_theta(data, labels, test, lab_test):
         ii+=1
 
 def model_r(data, labels, test, lab_test):
+    # Works great!
     model= Sequential()
+    model.add(Conv1D(kernel_size=8, filters=5))
+    #model.add(Conv1D(kernel_size=10, filters=2))
+    #model.add(Conv1D(kernel_size=10, filters=2))
     model.add(Flatten())
-    #model.add(Dense(8, activation = custom_activation, kernel_initializer= 'normal',\
-    #                                    kernel_regularizer=regularizers.l2(0.02)))
-    model.add(Dense(10, activation = custom_activation, kernel_initializer= 'normal', \
-                                      kernel_regularizer=regularizers.l2(0.02)))
-    model.add(Dense(8, activation = custom_activation, kernel_initializer= 'normal', \
+    #model.add(Dense(20, activation = custom_activation, kernel_initializer= 'normal', \
+                                        #kernel_regularizer=regularizers.l2(0.02)))
+    model.add(Dense(20, activation = custom_activation, kernel_initializer= 'normal', \
                                         kernel_regularizer=regularizers.l2(0.02)))
     model.add(Dense(1, activation = None, kernel_initializer= 'normal', \
                                         kernel_regularizer=regularizers.l2(0.02)))
 
     rms= RMSprop(lr=1e-4)
-    model.compile(loss='mae', optimizer=rms)
-    history= model.fit(data, labels, batch_size=5, nb_epoch=5000,  \
+    model.compile(loss='mse', optimizer=rms)
+    history= model.fit(data, labels, batch_size=100, nb_epoch=5000,  \
                     verbose=1, validation_data=(test, lab_test))
 
     predictions=model.predict(test, batch_size=1)
@@ -122,15 +111,8 @@ def model_r(data, labels, test, lab_test):
     error= predictions-lab_test
     plt.plot(error[:, 0], label=r'$r_{error}[cm]$')
 
-    #sin_cos_ratio= np.arctan2(predictions[:, 1], predictions[:, 2]) - np.arctan2(lab_test[:, 1], lab_test[:, 2])
-    #plt.plot(sin_cos_ratio, label=r'$\frac{sin \theta}{cos \theta}_{error}$')
-    #plt.title('Errors in Predictions')
-    #plt.legend()
-    #plt.show()
     print("mean_error r: ", np.mean(error[:, 0]))
     print("std_dev r: ", np.std(error[:, 0]))
-    #print("mean_error sin/cos: ", np.mean(sin_cos_ratio))
-    #print("std_dev sin/cos: ", np.std(sin_cos_ratio))
     ii=0
 
     for l in model.layers:
@@ -144,7 +126,8 @@ if __name__== '__main__':
     train_theta= False
 
     data= pd.read_csv('../collection/data_ICCM_June_10.csv').values
-    print(data)
+    data = data[~np.isnan(data).any(axis=1)]
+    print("Shape of data: " , data.shape)
     Data= data[:, :-2]
     labels = np.reshape(data[:, -1], (-1, 1))
 

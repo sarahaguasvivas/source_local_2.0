@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import struct
 import socket
 import sys
@@ -6,6 +6,7 @@ import sys
 IP_1_home= '10.0.0.8'
 IP_2_home= '10.0.0.4'
 IP_3_home= '10.0.0.7'
+IP_4_home= '10.0.0.5'
 
 BUFFER_SIZE= 1000
 
@@ -16,7 +17,7 @@ print("Connection established!")
 
 try:
     listl=[]
-    while (1):
+    while True:
         data= sock.recv(BUFFER_SIZE)
         if len(str(data))>0:
             str1= str(len(data)/4) + "f"
